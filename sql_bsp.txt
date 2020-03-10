@@ -1,0 +1,13 @@
+so habe ich die db in postgres erstellt
+
+1.
+create database corona;
+
+2.
+create table cases(
+    date    date,
+    land    varchar(40),
+    num_cases    integer,
+    deaths    integer,
+    primary key(date, land)
+);
