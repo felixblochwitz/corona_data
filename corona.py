@@ -13,16 +13,22 @@ def scraper():
 
     rows = soup.find("tbody").find_all("tr")
     data = [[x.get_text() for x in y.find_all("td")] for y in rows]
-    final_data = [[date] + [x for x in y][:3] for y in data]
+    final_data = [[date] + [None if x == "" else x for x in y][:3] for y in data]
+    for row in final_data:
+        try:
+            row[2] = int(row[2].replace(".",""))
+            row[3] = int(row[3].replace(".",""))
+        except AttributeError:
+            pass
     return final_data
 
 def update_db(data):
     try:
-        conn = psycopg2.connect(dbname="corona", user="postgres", host="192.52.34.244")
+        conn = psycopg2.connect(dbname="corona_de", user="postgres")
     except psycopg2.OperationalError as e:
         print(f"Can't connect because: {e}")
 
     cur = conn.cursor()
-    cur.executemany("""INSERT INTO cases (date, land, num_cases, deaths)
+    cur.executemany("""INSERT INTO cases_de (date, land, cases, deaths)
     VALUES(%s, %s, %s, %s)""", data)
     conn.commit()
