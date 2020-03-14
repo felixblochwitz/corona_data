@@ -1,4 +1,5 @@
 import re
+import datetime
 import psycopg2
 import requests as req
 from bs4 import BeautifulSoup as bs
@@ -8,18 +9,26 @@ def scraper():
     html = req.get(url).content
     soup = bs(html, 'lxml')
 
-    dates = soup.find("div", {"id": "main"}).find_all("strong", string=re.compile(r"\d*.\d*.\d{4}"))
-    date = re.search(r"\d*.\d*.\d{4}", dates[0].get_text())[0]
-
+    date_par = soup.find("p", {"class": "null"})
+    date = re.search(r"\d*.\d*.\d{4}", date_par.get_text())[0]
+    date = datetime.datetime.strptime(date, "%d.%m.%Y")
     rows = soup.find("tbody").find_all("tr")
     data = [[x.get_text() for x in y.find_all("td")] for y in rows]
-    final_data = [[date] + [None if x == "" else x for x in y][:3] for y in data]
+    final_data = [[date.date()] + [None if x == "" else x for x in y][:3] for y in data]
     for row in final_data:
-        try:
-            row[2] = int(row[2].replace(".",""))
-            row[3] = int(row[3].replace(".",""))
-        except AttributeError:
-            pass
+        if re.match(r"\d*[.]?\d* \(\d*\)", row[2]) and re.match(r"\d*[.]?\d* \(\d*\)", row[3]):
+            row[2:3] = row[2].replace(".", "").replace("(", "").replace(")", "").split(" ")
+            row[4:] = row[4].replace(".", "").replace("(", "").replace(")", "").split(" ")
+        elif re.match(r"\d*[.]?\d* \(\d*\)", row[2]):
+            row[2:3] = row[2].replace(".", "").replace("(", "").replace(")", "").split(" ")
+            row[4:] = [row[4].replace(".", ""), None]
+        elif re.match(r"\d*[.]?\d* \(\d*\)", row[3]):
+            row[2:3:] = [row[2].replace(".", ""), None]
+            row[4:] = row[4].replace(".", "").replace("(", "").replace(")", "").split(" ")
+        else:
+            row[2:3:] = [row[2].replace(".", ""), None]
+            row[4:] = [row[4].replace(".", ""), None]
+
     return final_data
 
 def update_db(data):
@@ -29,6 +38,6 @@ def update_db(data):
         print(f"Can't connect because: {e}")
 
     cur = conn.cursor()
-    cur.executemany("""INSERT INTO cases_de (date, land, cases, deaths)
-    VALUES(%s, %s, %s, %s)""", data)
+    cur.executemany("""INSERT INTO cases_de (date, land, cases, deaths, cases_electronic, deaths_electronic)
+    VALUES(%s, %s, %s, %s, %s, %s)""", data)
     conn.commit()
