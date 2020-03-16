@@ -1,5 +1,5 @@
 import re
-import datetime
+from datetime import datetime
 import psycopg2
 import requests as req
 from bs4 import BeautifulSoup as bs
@@ -17,7 +17,7 @@ def scraper():
 
     date_par = soup.find("p", {"class": "null"})
     date = re.search(r"\d*.\d*.\d{4}", date_par.get_text())[0]
-    date = datetime.datetime.strptime(date, "%d.%m.%Y")
+    date = datetime.strptime(date, "%d.%m.%Y")
     rows = soup.find("tbody").find_all("tr")
     data = [[x.get_text() for x in y.find_all("td")] for y in rows]
     final_data = [[date.date()] + [None if x == "" else x for x in y][:3] for y in data]
