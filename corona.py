@@ -38,6 +38,8 @@ def scraper():
     return final_data
 
 def update_db(data):
+    """Updates postgres database of corona cases in germany.
+    """
     try:
         conn = psycopg2.connect(dbname="corona_de", user="postgres")
     except psycopg2.OperationalError as e:
