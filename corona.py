@@ -5,6 +5,12 @@ import requests as req
 from bs4 import BeautifulSoup as bs
 
 def scraper():
+    """Scrapes daily reported corona cases in Germany. Source is the Robert Koch Institute.
+    
+        Returns:
+        list -- All reported cases and deaths. Both reported manually and electronically.
+                Number of cases for states and the whole republic.
+    """
     url = "https://www.rki.de/DE/Content/InfAZ/N/Neuartiges_Coronavirus/Fallzahlen.html"
     html = req.get(url).content
     soup = bs(html, 'lxml')
