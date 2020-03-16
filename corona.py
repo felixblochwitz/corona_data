@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup as bs
 
 def scraper():
     """Scrapes daily reported corona cases in Germany. Source is the Robert Koch Institute.
-    
+
         Returns:
         list -- All reported cases and deaths. Both reported manually and electronically.
                 Number of cases for states and the whole republic.
