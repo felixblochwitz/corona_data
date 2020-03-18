@@ -20,20 +20,11 @@ def scraper():
     date = datetime.strptime(date, "%d.%m.%Y")
     rows = soup.find("tbody").find_all("tr")
     data = [[x.get_text() for x in y.find_all("td")] for y in rows]
-    final_data = [[date.date()] + [None if x == "" else x for x in y][:3] for y in data]
+    final_data = [[date.date()] + [None if x == "" else x for x in y][:2] + y[4:5] for y in data]
     for row in final_data:
-        if re.match(r"\d*[.]?\d* \(\d*\)", row[2]) and re.match(r"\d*[.]?\d* \(\d*\)", row[3]):
-            row[2:3] = row[2].replace(".", "").replace("(", "").replace(")", "").split(" ")
-            row[4:] = row[4].replace(".", "").replace("(", "").replace(")", "").split(" ")
-        elif re.match(r"\d*[.]?\d* \(\d*\)", row[2]):
-            row[2:3] = row[2].replace(".", "").replace("(", "").replace(")", "").split(" ")
-            row[4:] = [row[4].replace(".", ""), None]
-        elif re.match(r"\d*[.]?\d* \(\d*\)", row[3]):
-            row[2:3:] = [row[2].replace(".", ""), None]
-            row[4:] = row[4].replace(".", "").replace("(", "").replace(")", "").split(" ")
-        else:
-            row[2:3:] = [row[2].replace(".", ""), None]
-            row[4:] = [row[4].replace(".", ""), None]
+        row[2:2] = [None, None]
+        row[4] = row[4].replace(".", "")
+        row[5] = row[5].replace(".", "")
 
     return final_data
 
