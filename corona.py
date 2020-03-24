@@ -22,9 +22,14 @@ def scraper():
     data = [[x.get_text() for x in y.find_all("td")] for y in rows]
     final_data = [[date.date()] + [None if x == "" else x for x in y][:2] + y[4:5] for y in data]
     for row in final_data:
+        row[1] = row[1].replace("\N{SOFT HYPHEN}", "")
         row[2:2] = [None, None]
         row[4] = row[4].replace(".", "")
         row[5] = row[5].replace(".", "")
+        if row[4] == "":
+            row[4] = None
+        elif row[5] == "":
+            row[5] = None
 
     return final_data
 
