@@ -15,7 +15,7 @@ def scraper():
     html = req.get(url).content
     soup = bs(html, 'lxml')
 
-    date_par = soup.find("p", {"class": "null"})
+    date_par = soup.find("div", {"id": "main"}).find("p")
     date = re.search(r"\d*.\d*.\d{4}", date_par.get_text())[0]
     date = datetime.strptime(date, "%d.%m.%Y")
     rows = soup.find("tbody").find_all("tr")
